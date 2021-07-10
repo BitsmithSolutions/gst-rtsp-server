@@ -15,3 +15,5 @@ test-auth
 test-netclock
 test-netclock-client
 test-onvif-backchannel
+rtsp-server-single
+rtsp-server-many

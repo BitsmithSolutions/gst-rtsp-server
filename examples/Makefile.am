@@ -3,7 +3,8 @@ noinst_PROGRAMS = test-video test-ogg test-mp4 test-readme \
 		  test-multicast test-multicast2 test-appsrc test-appsrc2 \
 		  test-video-rtx test-record test-record-auth \
 		  test-netclock test-netclock-client \
-		  test-onvif-backchannel test-video-disconnect
+		  test-onvif-backchannel test-video-disconnect \
+		  rtsp-server-single rtsp-server-many
 
 #INCLUDES = -I$(top_srcdir) -I$(srcdir)
 
