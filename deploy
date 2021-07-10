@@ -1,0 +1,11 @@
+#!/bin/bash
+
+PORT=test
+
+sudo systemctl stop zuconnect-rtsp-server-single.service
+sudo cp /home/minion/git/gst-rtsp-server/examples/.libs/rtsp-server-single /home/minion/.local/lib/zu/rtsp-server-single
+sudo cp /home/minion/git/gst-rtsp-server/examples/rtsp-server-single /usr/local/bin/rtsp-server-single
+sudo chown minion:minion /usr/local/bin/rtsp-server-single
+sudo systemctl start zuconnect-rtsp-server-single.service
+
+#sudo /home/minion/Documents/src/gst-rtsp-server/examples/.libs/test-launch
