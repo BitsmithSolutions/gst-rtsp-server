@@ -20,6 +20,8 @@ examples = [
   'test-uri',
   'test-video',
   'test-video-rtx',
+  'rtsp-server-single',
+  'rtsp-server-many',
 ]
 
 foreach example : examples
