@@ -59,12 +59,12 @@ main (int argc, char *argv[])
 
 
   if (argc < 3) {
-    g_print ("Need more arguments, only %d provided\n");
+    g_print ("Need more arguments, only %d provided\n", (argc - 1));
     g_print ("Need rtsp server port and MPEG-TS/188 Listening Port\n");
     g_print
         ("Example: rtsp-server-single <rtsp port> <MPEG-TS UDP Listen Port>\n");
     g_print ("Example: rtsp-server-single 554 11400\n");
-    g_print ("Exiting....\n", argc - 1);
+    g_print ("Exiting....\n");
     return 0;
   }
 
