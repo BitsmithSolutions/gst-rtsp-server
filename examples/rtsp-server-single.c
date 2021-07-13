@@ -11,10 +11,8 @@
 #include <gst/gst.h>
 #include <gst/rtsp-server/rtsp-server.h>
 
-#define DEFAULT_RTSP_PORT "7012"
-#define STREAM_NAME "stream"
-#define STREAM_LISTEN_PORT "11412"
 
+#define STREAM_NAME "stream"
 
 static gboolean
 remove_func (GstRTSPSessionPool * pool, GstRTSPSession * session,
@@ -49,8 +47,6 @@ timeout (GstRTSPServer * server)
   return TRUE;
 }
 
-static char *port = (char *) DEFAULT_RTSP_PORT;
-
 int
 main (int argc, char *argv[])
 {
@@ -59,14 +55,27 @@ main (int argc, char *argv[])
   GstRTSPMountPoints *mounts;
   GstRTSPMediaFactory *factory;
   GError *error = NULL;
-  
+  gchar launchUrl[64];
+
+
+  if (argc < 3) {
+    g_print ("Need more arguments, only %d provided\n", (argc - 1));
+    g_print ("Need rtsp server port and MPEG-TS/188 Listening Port\n");
+    g_print
+        ("Example: rtsp-server-single <rtsp port> <MPEG-TS UDP Listen Port>\n");
+    g_print ("Example: rtsp-server-single 554 11400\n");
+    g_print ("Exiting....\n");
+    return 0;
+  }
+
+
   gst_init (&argc, &argv);
 
   loop = g_main_loop_new (NULL, FALSE);
 
   /* create a server instance */
   server = gst_rtsp_server_new ();
-  g_object_set (server, "service", port, NULL);
+  g_object_set (server, "service", argv[1], NULL);
 
   /* get the mount points for this server, every server has a default object
    * that be used to map uri mount points to media factories */
@@ -77,15 +86,18 @@ main (int argc, char *argv[])
    * any launch line works as long as it contains elements named pay%d. Each
    * element with pay%d names will be a stream */
   factory = gst_rtsp_media_factory_new ();
-  gst_rtsp_media_factory_set_launch (factory, 
-	"( udpsrc port="STREAM_LISTEN_PORT" caps=video/mpegts,systemstream=true,packetsize=188 ! queue ! tsdemux ! queue ! h264parse config-interval=1 ! queue ! rtph264pay name=pay0 pt=96 )");
-  
+
+  g_sprintf (launchUrl,
+      "( udpsrc port=%s caps=video/mpegts,systemstream=true,packetsize=188 ! queue ! tsdemux ! queue ! h264parse config-interval=1 ! queue ! rtph264pay name=pay0 pt=96 )",
+      argv[2]);
+  gst_rtsp_media_factory_set_launch (factory, launchUrl);
+
   //gst_rtsp_media_factory_set_launch (factory, 
-	//"( udpsrc port="STREAM_LISTEN_PORT" caps=video/mpegts,systemstream=true,packetsize=188 ! queue ! rtpmp2tpay name=pay0 pt=33 )");
+  //"( udpsrc port="STREAM_LISTEN_PORT" caps=video/mpegts,systemstream=true,packetsize=188 ! queue ! rtpmp2tpay name=pay0 pt=33 )");
 
   gst_rtsp_media_factory_set_shared (factory, TRUE);
-  gst_rtsp_mount_points_add_factory (mounts, "/"STREAM_NAME, factory);
-  
+  gst_rtsp_mount_points_add_factory (mounts, "/" STREAM_NAME, factory);
+
   /* don't need the ref to the mapper anymore */
   g_object_unref (mounts);
 
@@ -97,12 +109,14 @@ main (int argc, char *argv[])
   //g_timeout_add_seconds (10, (GSourceFunc) remove_sessions, server);
 
   /* start serving */
-  g_print ("'RTSP Server' listening for MPEG-TS/UDP on port:'"STREAM_LISTEN_PORT"', using url 'rtsp://127.0.0.1:%s/"STREAM_NAME"'\n", port);
+  g_print
+      ("'RTSP Server' listening for MPEG-TS/UDP on port:'%s', using url 'rtsp://127.0.0.1:%s/"
+      STREAM_NAME "'\n", argv[2], argv[1]);
 
   g_main_loop_run (loop);
 
   return 0;
-  
+
   /* ERRORS */
 failed:
   {
